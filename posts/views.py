@@ -1,7 +1,7 @@
-from django.shortcuts import render,redirect
+from django.shortcuts import render,redirect,get_object_or_404
 from .models import *
-from django.forms import ModelForm
-from django import forms
+from .forms import *
+from django.contrib import messages
 
 from bs4 import BeautifulSoup
 import requests
@@ -11,18 +11,6 @@ def home_view(request):
     posts = Posts.objects.all()
     
     return render(request,'posts/home.html',{'posts':posts})
-
-class PostCreateForm(ModelForm):
-    class Meta:
-        model = Posts
-        fields = ['url','body']
-        label = {
-            'body': 'Caption',
-        }
-        widgets = {
-            'url' :forms.TextInput(attrs={'placeholder':"Add Url..."}),
-            'body': forms.Textarea(attrs={'row':3, 'placeholder':"Add a caption...",'class':'font1 text-2xl'})
-        }
 
 
 def post_create_view(request):
@@ -49,3 +37,39 @@ def post_create_view(request):
             return redirect('home')
         
     return render(request,'posts/post_create.html',{'form' : form})
+
+def post_delete_view(request,pk):  
+    post = get_object_or_404(Posts,id=pk)
+    
+    if request.method == "POST":
+        post.delete()
+        messages.success(request,'Post deleted')
+        return redirect("home")
+    
+    return render(request,'posts/post_delete.html',{'post':post})
+
+def post_edit_view(request,pk):  
+    post = get_object_or_404(Posts,id=pk)
+    form = PostEditForm(instance=post)
+    
+    if request.method == "POST":
+        form = PostEditForm(request.POST,instance=post)
+        if form.is_valid():
+            form.save()
+            messages.success(request,'Post updated')
+            return redirect("home")
+            
+    context = {
+        'post': post,
+        'form': form,
+    }
+    
+    return render(request,'posts/post_edit.html',context)
+
+
+def post_page_view(request,pk): 
+    post = get_object_or_404(Posts,id=pk)
+    context = {
+        'post': post,
+    }
+    return render(request,'posts/post_view.html',context)
