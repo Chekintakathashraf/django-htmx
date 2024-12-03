@@ -7,10 +7,24 @@ from bs4 import BeautifulSoup
 import requests
 # Create your views here.
 
-def home_view(request):
-    posts = Posts.objects.all()
+def home_view(request,tag=None):
+    if tag:
+        posts = Posts.objects.filter(tags__slug=tag)
+        tag = get_object_or_404(Tag,slug=tag)
+    else : 
+        posts = Posts.objects.all()
     
-    return render(request,'posts/home.html',{'posts':posts})
+    categories = Tag.objects.all()
+    
+    context = {
+        'posts':posts,
+        'categories' : categories,
+        'tag' : tag,
+        }
+    
+    return render(request,'posts/home.html',context)
+
+
 
 
 def post_create_view(request):
@@ -34,6 +48,7 @@ def post_create_view(request):
             post.artist = artist
             
             post.save()
+            form.save_m2m()
             return redirect('home')
         
     return render(request,'posts/post_create.html',{'form' : form})
@@ -56,6 +71,7 @@ def post_edit_view(request,pk):
         form = PostEditForm(request.POST,instance=post)
         if form.is_valid():
             form.save()
+            
             messages.success(request,'Post updated')
             return redirect("home")
             
