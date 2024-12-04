@@ -4,10 +4,10 @@ from django.contrib.auth.models import User
 # Create your models here.
 
 class Posts(models.Model):
-    title = models.CharField(max_length=50)
-    artist = models.CharField(max_length=150,null=True)
-    url = models.URLField(max_length=500,null=True)
-    image = models.CharField(max_length=150)
+    title = models.CharField(max_length=250)
+    artist = models.CharField(max_length=250,null=True)
+    url = models.URLField(max_length=250,null=True)
+    image = models.CharField(max_length=250)
     author = models.ForeignKey(User,on_delete=models.SET_NULL,null=True,related_name='posts')
     body = models.TextField()
     tags = models.ManyToManyField("Tag")
@@ -21,9 +21,9 @@ class Posts(models.Model):
         ordering = ['-created']
         
 class Tag(models.Model):
-    name = models.CharField(max_length=50)
+    name = models.CharField(max_length=250)
     image = models.FileField(upload_to='icons/',null=True,blank=True)
-    slug = models.CharField(max_length=50,null=True)
+    slug = models.CharField(max_length=250,null=True)
     order = models.IntegerField(null=True)
     
     
@@ -34,10 +34,38 @@ class Tag(models.Model):
         ordering = ['-order']   
         
         
+
+class Comment(models.Model):
+    author = models.ForeignKey(User,on_delete=models.SET_NULL,null=True,related_name='comments')
+    parent_post = models.ForeignKey(Posts,on_delete=models.CASCADE,related_name='comments')
+    body = models.CharField(max_length=250)
+    created = models.DateTimeField(auto_now_add=True)
+    id = models.CharField(max_length=100,default=uuid.uuid4,unique=True,primary_key=True,editable=False)
+    
+    def __str__(self):
+        try:
+            return f'{self.author.username} : {self.body[:30]}'
+        except:
+            return f'no author : {self.body[:30]}'
         
+    class Meta: 
+        ordering = ['-created']
         
+class Reply(models.Model):
+    author = models.ForeignKey(User,on_delete=models.SET_NULL,null=True,related_name='replies')
+    parent_comment = models.ForeignKey(Comment,on_delete=models.CASCADE,related_name='replies')
+    body = models.CharField(max_length=250)
+    created = models.DateTimeField(auto_now_add=True)
+    id = models.CharField(max_length=100,default=uuid.uuid4,unique=True,primary_key=True,editable=False)
+    
+    def __str__(self):
+        try:
+            return f'{self.author.username} : {self.body[:30]}'
+        except:
+            return f'no author : {self.body[:30]}'
         
-        
+    class Meta:
+        ordering = ['-created']       
         
         
         

@@ -28,5 +28,25 @@ class PostEditForm(ModelForm):
             'tags' : forms.CheckboxSelectMultiple(),
         }
 
+class CommentCreateForm(ModelForm):
+    class Meta:
+        model = Comment
+        fields = ['body',]
+        label = {
+            'body': '',
+        }
+        widgets = {
+            'body': forms.Textarea(attrs={'placeholder':"Add body..."}),
+        }
 
+class ReplyCreateForm(ModelForm):
+    class Meta:
+        model = Reply
+        fields = ['body',]
+        label = {
+            'body': '',
+        }
+        widgets = {
+            'body': forms.Textarea(attrs={'placeholder':"Add reply...",'class':"!text-sm"}),
+        }
 
