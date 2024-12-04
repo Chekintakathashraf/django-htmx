@@ -163,7 +163,10 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_REDIRECT_URL = 'home'
-ACCOUNT_SIGNUP_REDIRECT_URL = 'home'
+ACCOUNT_SIGNUP_REDIRECT_URL = 'profile-onboarding'
+# from django.urls import reverse
+
+# ACCOUNT_SIGNUP_REDIRECT_URL = reverse('profile-onboard')
 
 # EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 # EMAIL_HOST = 'smtp.gmail.com'
@@ -175,3 +178,5 @@ ACCOUNT_SIGNUP_REDIRECT_URL = 'home'
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 ACCOUNT_AUTHENTICATION_METHOD = 'email'
 ACCOUNT_EMAIL_REQUIRED = True
+
+ACCOUNT_USERNAME_BLACKLIST = [ 'admin', 'accounts', 'profile', 'category', 'post']
