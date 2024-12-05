@@ -3,7 +3,7 @@ from .models import *
 from .forms import *
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-
+from django.http import HttpResponse
 from bs4 import BeautifulSoup
 import requests
 # Create your views here.
@@ -147,6 +147,19 @@ def reply_delete_view(request,pk):
         return redirect("post-view",reply.parent_comment.parent_post.id)
     
     return render(request,'posts/reply_delete.html',{'reply':'reply'})
+
+def like_post(request,pk):
+    post = get_object_or_404(Posts, id=pk)
+    user_exist = post.likes.filter(username=request.user.username).exists()
+    
+    if post.author != request.user:
+        if user_exist: 
+            post.likes.remove(request.user)
+        else:
+            post.likes.add(request.user)
+        
+    # return redirect('post-view',post.id)
+    return HttpResponse(post.likes.count())
 
 
        
