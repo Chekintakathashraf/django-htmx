@@ -148,19 +148,49 @@ def reply_delete_view(request,pk):
     
     return render(request,'posts/reply_delete.html',{'reply':'reply'})
 
-def like_post(request,pk):
-    post = get_object_or_404(Posts, id=pk)
-    user_exist = post.likes.filter(username=request.user.username).exists()
+# def like_post(request,pk):
+    # post = get_object_or_404(Posts, id=pk)
+    # user_exist = post.likes.filter(username=request.user.username).exists()
     
-    if post.author != request.user:
-        if user_exist: 
-            post.likes.remove(request.user)
-        else:
-            post.likes.add(request.user)
+    # if post.author != request.user:
+    #     if user_exist: 
+    #         post.likes.remove(request.user)
+    #     else:
+    #         post.likes.add(request.user)
         
-    # return redirect('post-view',post.id)
-    return HttpResponse(post.likes.count())
+    # # return redirect('post-view',post.id)
+    # # return HttpResponse(post.likes.count())
+    # return render(request, 'snippets/likes.html', {'post':post})
 
+def like_toggle(model):
+    def inner_func(func):
+        def wrapper(request,*args,**kwargs):
+            post = get_object_or_404(model, id = kwargs.get("pk"))
+            user_exist = post.likes.filter(username=request.user.username).exists()
+            
+            if post.author != request.user:
+                if user_exist:
+                    post.likes.remove(request.user)
+                else:
+                    post.likes.add(request.user)
+                    
+            return func(request, post)
+        return wrapper
+    return inner_func
 
+@login_required
+@like_toggle(Posts)
+def like_post(request,post):
+    return render(request,'snippets/likes.html', {'post' : post})
+
+@login_required                    
+@like_toggle(Comment)
+def like_comment(request,comment):
+    return render(request,'snippets/likes_comment.html', {'comment' : comment})
+
+@login_required                    
+@like_toggle(Reply)
+def like_reply(request,reply):
+    return render(request,'snippets/likes_reply.html', {'reply' : reply})
        
         
